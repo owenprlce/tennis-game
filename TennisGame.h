@@ -2,27 +2,41 @@
 #define TENNISGAME_H
 
 #include "Player.cpp"
-#include "GameHandler.h"
+#include "PlayerHandler.h"
 #include <fstream>
 #include <sstream>
+#include <filesystem>
+
+namespace fs = filesystem;
 
 class TennisGame
 {
 public:
-    vector<Player *> loadPlayerArchetypes();
-    vector<Player *> playerChoice(vector<Player *>);
-    void start();
-    void noAdPlayLogic(vector<Player *>, int);
-    void adPlayLogic(vector<Player *>, int);
-    // change such that it is according to who goes first from actual game
-    void tieBreakerLogic(vector<Player *>, int);
+    TennisGame();
+    ~TennisGame();
 
-    // Need to implement
-    string saveGame();
+    // Game Initialization
+    void play(TennisGame t);
+    void startGame();
+        vector<Player *> loadPlayerArchetypes();
+        vector<Player *> playerChoice(vector<Player *>);
     void loadGame();
 
+    // Game Persistence
+    string saveGame(vector<Player *>, int);
+
+    // Game Modes
+    void noAdPlayLogic(vector<Player *>, int);
+    void adPlayLogic(vector<Player *>, int);
+    void tieBreakerLogic(vector<Player *>, int);
+
+    // File Parsing
+    vector<double> parseHitTypes(const string& line);
+    string trimLeadingSpaces(string&);
+    
 private:
-    GameHandler gh, PlayerOne, PlayerTwo;
+    PlayerHandler PlayerOne, PlayerTwo;
+    vector<Player *> loadedPlayers {};
 };
 
 #endif

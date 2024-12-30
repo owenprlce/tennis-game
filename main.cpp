@@ -1,11 +1,13 @@
+#include <algorithm>
 #include <iostream>
 
 #include "TennisGame.cpp"
 
-int main()
-{
-    //type in "save" keyword to save a game into storage
+int main() {
+    //TennisGame object
     TennisGame t;
-    t.start();
+    //Program entrypoint
+    t.play(t);
+
     return 0;
 }
