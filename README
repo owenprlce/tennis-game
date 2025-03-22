@@ -1,0 +1,11 @@
+This is a fun side project I have been working on when I have had time.
+
+It is still in its early stage of development, and I play to increase complexity of the implementation
+    -Adding abstraction, and polymorphism (if needed for player archetypes and so on)
+    -Adding unprogrammed gamemode mechanics such as logic that can simulate a tie breaker in a match, and if players want to play ad tennis
+    -More options for a game player to choose player attributes
+    -Simulate player gameplay, or virtual tennis tornament brackets?
+    -...
+
+I may change direction with this project to leverage knowledge and skills attained from a computer graphics course I am taking 
+in order to add a graphical aspect to the game.  
