@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "*.py": "python",
+        "vector": "cpp",
+        "iostream": "cpp",
+        "fstream": "cpp",
+        "locale": "cpp",
+        "regex": "cpp",
+        "istream": "cpp"
+    }
+}

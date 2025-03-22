@@ -5,6 +5,10 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
+#include <iomanip>
+#include <regex>
+
 using namespace std;
 
 class Player
@@ -20,8 +24,8 @@ public:
     Player(string, vector<vector<double>>, int, int, int);
     ~Player();
 
-    // * * *
-    Player createPlayer();
+    string createPlayer();
+    string hitConverter(string&);
 
 private:
 

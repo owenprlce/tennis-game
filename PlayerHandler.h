@@ -7,7 +7,20 @@
 #include <string>
 #include <vector>
 
+// Testing
+#include <unordered_map>
+
 using namespace std;
+
+struct PlayerChoice {
+    string name;
+    vector<double>* data;
+    double avg;
+
+    // Constructor for easy initialization
+    PlayerChoice(const string& name, vector<double>* data, double avg)
+        : name(name), data(data), avg(avg) {}
+};
 
 class PlayerHandler {
    public:

@@ -1,94 +1,87 @@
 #include "PlayerHandler.h"
 
-PlayerHandler::PlayerHandler() {}
+PlayerHandler::PlayerHandler() {
+}
 
 PlayerHandler::~PlayerHandler() {}
 
 int PlayerHandler::hitIndex() {
-    // will need to eventually choiceange this to acomodate more values
-    srand(time(NULL));
-    int _rand = rand() % 11;
-    return _rand;
+    int index = rand() % 11;
+    return index;
 }
 
 int PlayerHandler::getTurn() {
-    srand(time(NULL));
-    int _rand = rand() % 2;
-    return racketFlip[_rand];
+    int index = rand() % 2;
+    return racketFlip[index];
 }
 
-void PlayerHandler::setPlayerOneHitValues(vector<double> &a, vector<double> &b, vector<double> &c) {
-    this->p1fh = a;
-    this->p1bh = b;
-    this->p1sl = c;
+void PlayerHandler::setPlayerOneHitValues(vector<double> &fh, vector<double> &bh, vector<double> &sl) {
+    this->p1fh = fh;
+    this->p1bh = bh;
+    this->p1sl = sl;
 }
 
 bool PlayerHandler::getPlayerOneChoice(string &choice) {
-    int rand;
+    int index = hitIndex();
 
     if (choice == "1") {
-        rand = hitIndex();
-
-        double test = p1fh[rand];
-        if (test > p1fh_avg) {
-            return true;
-
-        } else {
-            return false;
-        }
-    } else if (choice == "2") {
-        rand = hitIndex();
-        return p1bh[rand];
-    } else if (choice == "3") {
-        rand = hitIndex();
-        return p1sl[rand];
-    } else {
-    }
-
-    return 0.0;
-}
-void PlayerHandler::setPlayerTwoHitValues(vector<double> &a, vector<double> &b, vector<double> &c) {
-    this->p2fh = a;
-    this->p2bh = b;
-    this->p2sl = c;
-}
-
-bool PlayerHandler::getPlayerTwoChoice(string &choice) {
-    int rand;
-
-    if (choice == "1") {
-        rand = hitIndex();
-        double fh = p2fh[rand];
-        if (fh > p2fh_avg) {
+        cout << index << " is the index value for player one forehand" << endl;
+        if (p1fh[index] > p1fh_avg) {
             return true;
         } else {
             return false;
         }
     } else if (choice == "2") {
-        rand = hitIndex();
-        double bh = p2bh[rand];
-
-        if (bh > p2bh_avg) {
+        cout << index << " is the index value for player one backhand" << endl;
+        if (p1bh[index] > p1bh_avg) {
             return true;
         } else {
             return false;
         }
-
     } else if (choice == "3") {
-        rand = hitIndex();
-        double sl = p2sl[rand];
-
-        if (sl > p2sl_avg) {
+        cout << index << " is the index value for player one slice" << endl;
+        if (p1sl[index] > p1sl_avg) {
             return true;
         } else {
             return false;
         }
-    } else {
-        return 0;
     }
-    // does returning 0 naturally mean a missed shot
+
     return 0;
 }
+void PlayerHandler::setPlayerTwoHitValues(vector<double> &fh, vector<double> &bh, vector<double> &sl) {
+    this->p2fh = fh;
+    this->p2bh = bh;
+    this->p2sl = sl;
+}
+
+// Optimized Code!
+bool PlayerHandler::getPlayerTwoChoice(string &choice) {
+    int index = hitIndex();
+    
+    // Create a map to store the choices and their respective data and averages
+    
+    // Map each choice to its corresponding data and average
+    unordered_map<string, PlayerChoice> choices = {
+        {"1", {"forehand", &p2fh, p2fh_avg}},
+        {"2", {"backhand", &p2bh, p2bh_avg}},
+        {"3", {"slice", &p2sl, p2sl_avg}}
+    };
+
+    // Check if the choice exists in the map
+    auto it = choices.find(choice);
+    if (it != choices.end()) {
+        // Print the index value and choice name
+        cout << index << " is the index value for player two " << it->second.name << endl;
+        
+        // Compare the value at index with the average and return the result
+        return (*it->second.data)[index] > it->second.avg;
+    }
+
+    // If choice is invalid, return false (or handle error as needed)
+    return false;
+}
+
 
 string PlayerHandler::playerMenu() {
     string choice;

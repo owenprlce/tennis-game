@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <algorithm>
 
 namespace fs = filesystem;
 
@@ -16,7 +17,7 @@ public:
     ~TennisGame();
 
     // Game Initialization
-    void play(TennisGame t);
+    void menu(TennisGame t);
     void startGame();
         vector<Player *> loadPlayerArchetypes();
         vector<Player *> playerChoice(vector<Player *>);
@@ -30,9 +31,11 @@ public:
     void adPlayLogic(vector<Player *>, int);
     void tieBreakerLogic(vector<Player *>, int);
 
-    // File Parsing
-    vector<double> parseHitTypes(const string& line);
-    string trimLeadingSpaces(string&);
+    // File I/O
+    vector<double> parseHitTypes(const string&);
+    void createNewPlayer(string&);
+    void resetGameSettings(); 
+    void resetCache();
     
 private:
     PlayerHandler PlayerOne, PlayerTwo;

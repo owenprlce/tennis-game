@@ -4,49 +4,65 @@ TennisGame::TennisGame() {}
 
 TennisGame::~TennisGame() {}
 
-void TennisGame::play(TennisGame t) {
+void TennisGame::menu(TennisGame t) {
     string option;
     cout << "Welcome to text-based tennis\n\n";
 
     do {
-        cout << "To start a new game: 'NEW'\nTo load a old game 'OLD'\n";
+        cout << "To start a new game: 'NEW'\nTo load an old game 'OLD'\n"
+             << "To create a new player: 'CREATE'\nTo reset player settings 'RESET'\n"
+             << "To clear game cache: 'RESET-CACHE'\n";
         cin >> option;
         transform(option.begin(), option.end(), option.begin(), ::toupper);
 
         if (option == "OLD") {
             t.loadGame();
             break;
-        } else if (option == "NEW") {
+        }
+        if (option == "NEW") {
             t.startGame();
+            break;
+        }
+        if (option == "CREATE") {
+            Player player;
+            string newPlayer = player.createPlayer();
+            createNewPlayer(newPlayer);
+            break;
+        }
+
+        if (option == "RESET") {
+            resetGameSettings();
+            break;
+        }
+
+        if (option == "RESET-CACHE") {
+            resetCache();
             break;
         }
 
         cin.clear();
 
-    } while (option != "NEW" || option != "OLD");
-
-    cout << "\nThank you for playing!\n";
+    } while (option != "NEW" || option != "OLD" || option != "CREATE" || option != "RESET" || option != "RESET-CACHE");
 }
 
 void TennisGame::startGame() {
     vector<Player *> players = loadPlayerArchetypes();
 
-    cout << "Welcome to the \n";
-    cout << "Players choose your character! " << endl;
+    if (players.size() >= 2) {
+        cout << "\nPlayers choose your character! " << endl;
 
-    vector<Player *> matchPlayers = playerChoice(players);
-    int racketFlipResult = PlayerOne.getTurn();
+        vector<Player *> matchPlayers = playerChoice(players);
+        int racketFlipResult = PlayerOne.getTurn();
 
-    noAdPlayLogic(matchPlayers, racketFlipResult);
+        noAdPlayLogic(matchPlayers, racketFlipResult);
+    }
+
+    cout << "\nYou must have two player archetypes created" << endl;
 }
 
 vector<Player *> TennisGame::loadPlayerArchetypes() {
     vector<Player *> players;
-    ifstream filestream("playerSettings/players.txt");
-
-    if (!filestream.is_open()) {
-        cerr << "Error opening file " << endl;
-    }
+    ifstream filestream("settings/players.txt");
 
     string junk;
     getline(filestream, junk);
@@ -110,24 +126,39 @@ vector<Player *> TennisGame::loadPlayerArchetypes() {
 }
 
 vector<Player *> TennisGame::playerChoice(vector<Player *> playerList) {
-    vector<Player *> matchPlayers;
+    vector<Player *> remainingPlayers, matchPlayers;
     int p1choice, p2choice;
+
+    int j = 1;
     for (int i = 0; i < playerList.size(); ++i) {
-        cout << i << ")" << playerList.at(i)->playerName << endl;
+        cout << j << ")" << playerList.at(i)->playerName << endl;
+        j++;
     }
 
     cout << "Player 1 Choose: " << endl;
     cin >> p1choice;
 
-    Player *playerOne = playerList.at(p1choice);
+    Player *playerOne = playerList.at(p1choice - 1);
     PlayerOne.setPlayerOneHitValues(playerOne->hitTypes[0], playerOne->hitTypes[1], playerOne->hitTypes[2]);
     PlayerOne.setPlayerOneAVGs();
     matchPlayers.push_back(playerOne);
 
+    for (int i = 0; i < playerList.size(); ++i) {
+        if (i != p1choice - 1) {
+            remainingPlayers.push_back(playerList.at(i));
+        }
+    }
+
+    j = 1;
+    for (int i = 0; i < remainingPlayers.size(); ++i) {
+        cout << j << ")" << remainingPlayers.at(i)->playerName << endl;
+        j++;
+    }
+
     cout << "Player 2 Choose: " << endl;
     cin >> p2choice;
 
-    Player *playerTwo = playerList.at(p2choice);
+    Player *playerTwo = remainingPlayers.at(p2choice - 1);
     PlayerTwo.setPlayerTwoHitValues(playerTwo->hitTypes[0], playerTwo->hitTypes[1], playerTwo->hitTypes[2]);
     PlayerTwo.setPlayerTwoAVGs();
     matchPlayers.push_back(playerTwo);
@@ -265,16 +296,15 @@ void TennisGame::loadGame() {
             }
         }
 
-        Player *playerOne = loadedPlayers.at(0);
-        PlayerOne.setPlayerOneHitValues(playerOne->hitTypes[0], playerOne->hitTypes[1], playerOne->hitTypes[2]);
+        PlayerOne.setPlayerOneHitValues(loadedPlayers.at(0)->hitTypes[0], loadedPlayers.at(0)->hitTypes[1], loadedPlayers.at(0)->hitTypes[2]);
         PlayerOne.setPlayerOneAVGs();
-
-        Player *playerTwo = loadedPlayers.at(1);
-        PlayerTwo.setPlayerTwoHitValues(playerTwo->hitTypes[0], playerTwo->hitTypes[1], playerTwo->hitTypes[2]);
+        PlayerTwo.setPlayerTwoHitValues(loadedPlayers.at(1)->hitTypes[0], loadedPlayers.at(1)->hitTypes[1], loadedPlayers.at(1)->hitTypes[2]);
         PlayerTwo.setPlayerTwoAVGs();
 
         noAdPlayLogic(loadedPlayers, turn);
     }
+
+    cout << "\nNo saved games" << endl;
 }
 
 string TennisGame::saveGame(vector<Player *> playersToSave, int playerTurn) {
@@ -329,27 +359,27 @@ string TennisGame::saveGame(vector<Player *> playersToSave, int playerTurn) {
     outputFile << "Player 2:" << endl;
     outputFile << "Name:" << p2->playerName << endl;
     outputFile << "Hit-Types(FH):";
-    for (size_t i = 0; i < p1->hitTypes[0].size(); ++i) {
-        outputFile << p1->hitTypes[0][i];
-        if (i < p1->hitTypes[0].size() - 1) {
+    for (size_t i = 0; i < p2->hitTypes[0].size(); ++i) {
+        outputFile << p2->hitTypes[0][i];
+        if (i < p2->hitTypes[0].size() - 1) {
             outputFile << " ";
         }
     }
     outputFile << endl;
 
     outputFile << "Hit-Types(BH):";
-    for (size_t i = 0; i < p1->hitTypes[1].size(); ++i) {
-        outputFile << p1->hitTypes[1][i];
-        if (i < p1->hitTypes[1].size() - 1) {
+    for (size_t i = 0; i < p2->hitTypes[1].size(); ++i) {
+        outputFile << p2->hitTypes[1][i];
+        if (i < p2->hitTypes[1].size() - 1) {
             outputFile << " ";
         }
     }
     outputFile << endl;
 
     outputFile << "Hit-Types(SL):";
-    for (size_t i = 0; i < p1->hitTypes[2].size(); ++i) {
-        outputFile << p1->hitTypes[2][i];
-        if (i < p1->hitTypes[2].size() - 1) {
+    for (size_t i = 0; i < p2->hitTypes[2].size(); ++i) {
+        outputFile << p2->hitTypes[2][i];
+        if (i < p2->hitTypes[2].size() - 1) {
             outputFile << " ";
         }
     }
@@ -363,7 +393,7 @@ string TennisGame::saveGame(vector<Player *> playersToSave, int playerTurn) {
 
 void TennisGame::noAdPlayLogic(vector<Player *> players, int turn) {
     string option;
-    bool shot_result;
+    bool result;
     int numRounds = 1;
     int originalTurn = turn;
 
@@ -379,12 +409,11 @@ void TennisGame::noAdPlayLogic(vector<Player *> players, int turn) {
                 break;
             }
 
-            shot_result = PlayerOne.getPlayerOneChoice(option);
-            cout << shot_result << endl;
-            if (shot_result == 1) {
+            result = PlayerOne.getPlayerOneChoice(option);
+            if (result == 1) {
                 turn++;
                 continue;
-            } else if (shot_result == 0) {
+            } else if (result == 0) {
                 cout << "Player 1 Missed" << endl;
                 players.at(1)->playerScore++;
                 cout << "Player 2 Score: " << players.at(1)->playerScore << endl;
@@ -407,11 +436,11 @@ void TennisGame::noAdPlayLogic(vector<Player *> players, int turn) {
                 break;
             }
 
-            shot_result = PlayerTwo.getPlayerTwoChoice(option);
-            if (shot_result) {
+            result = PlayerTwo.getPlayerTwoChoice(option);
+            if (result) {
                 turn++;
                 continue;
-            } else if (shot_result == 0) {
+            } else if (result == 0) {
                 cout << "Player 2 Missed" << endl;
                 players.at(0)->playerScore++;
                 cout << "Player 1 Score: " << players.at(0)->playerScore << endl;
@@ -449,14 +478,14 @@ void TennisGame::noAdPlayLogic(vector<Player *> players, int turn) {
         turn = originalTurn;
         numRounds++;
     }
+
+    cout << "Thank you for playing!" << endl;
 }
 
 void TennisGame::adPlayLogic(vector<Player *> players, int turn) {
 }
 // need to fix
-void TennisGame::tieBreakerLogic(vector<Player *> players, int turn)
-{
-
+void TennisGame::tieBreakerLogic(vector<Player *> players, int turn) {
     // int numRounds = 1;
     // int switchTurns = turn;
 
@@ -520,11 +549,27 @@ vector<double> TennisGame::parseHitTypes(const string &line) {
     }
     return hitTypes;
 }
-// need to change this
-string TennisGame::trimLeadingSpaces(string &str) {
-    size_t start = str.find_first_not_of(" \t\n\r");  // Find first non-space character
-    if (start == std::string::npos) {
-        return "";  // If no non-space character is found, return an empty string
+
+void TennisGame::createNewPlayer(string &newPlayer) {
+    if (!fs::is_directory("settings") || !fs::exists("settings")) {
+        fs::create_directory("settings");
+        ofstream output("settings/players.txt");
+        output << "Player Information:\n";
+        output << newPlayer << "\n";
+    } else {
+        ofstream output("settings/players.txt", ios::app);
+        output << newPlayer << "\n";
     }
-    return str.substr(start);  // Return substring without leading spaces
+}
+
+void TennisGame::resetGameSettings() {
+    fs::remove_all("settings");
+    cout << "\nPlayer settings cleared" << endl;
+}
+
+void TennisGame::resetCache() {
+    fs::remove_all("savedGames");
+    cout << "\nSaved games cleared" << endl;
+    fs::remove_all("settings");
+    cout << "\nPlayer settings cleared" << endl;
 }
